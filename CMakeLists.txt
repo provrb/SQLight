@@ -24,7 +24,8 @@ file(GLOB_RECURSE SRC_FILES
 )
 
 # Find wxWidgets (core and base are minimum, add more if needed)
-find_package(wxWidgets REQUIRED COMPONENTS core base)
+set(wxWidgets_ROOT_DIR "C:/wxWidgets-3.3.0/")
+find_package(wxWidgets REQUIRED COMPONENTS core base stc)
 
 # Define the executable
 add_executable(SQLight ${SRC_FILES})

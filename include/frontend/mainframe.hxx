@@ -11,4 +11,7 @@
 class MainFrame : public wxFrame {
 public:
     explicit MainFrame(std::string_view title);
+    ~MainFrame() override = default;
+
+    void CreateMenuBar();
 };
