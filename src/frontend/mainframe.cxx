@@ -1,8 +1,9 @@
 #include "frontend/mainframe.hxx"
+#include "frontend/colours.hxx"
 
-#include <wx/treectrl.h>
 #include <wx/splitter.h>
-#include <wx/stc/stc.h>
+#include <wx/clipbrd.h>
+#include <wx/aui/auibook.h>
 
 MainFrame::MainFrame(std::string_view title)
     : wxFrame(nullptr, wxID_ANY, title.data(), wxDefaultPosition, wxSize(800, 600))
@@ -18,15 +19,9 @@ MainFrame::MainFrame(std::string_view title)
     wxPanel* leftPanel = new wxPanel(splitter, wxID_ANY);
     wxBoxSizer* leftSizer = new wxBoxSizer(wxVERTICAL);
 
-    wxTreeCtrl* treeCtrl = new wxTreeCtrl(leftPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-        wxTR_TWIST_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_DEFAULT_STYLE);
-
-    // Add roots for SQL tree
-    wxTreeItemId root = treeCtrl->AddRoot("Tables");
-    treeCtrl->AppendItem(root, "Dummy 1");
-    treeCtrl->AppendItem(root, "Dummy 2");
-
-    leftSizer->Add(treeCtrl, 1, wxEXPAND | wxALL, 5);
+    wxDataViewTreeCtrl* treeCtrl = SetupTableTreeView(leftPanel);
+    
+    leftSizer->Add(treeCtrl, 1, wxEXPAND | wxALL, 8);
     leftPanel->SetSizer(leftSizer);
 
     // Right panel
@@ -46,27 +41,18 @@ MainFrame::MainFrame(std::string_view title)
     //buttonSizer->Add(runButton, 0, wxALL);
     //rightSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, 5);
 
-    wxStyledTextCtrl* stc = new wxStyledTextCtrl(rightPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
-    stc->SetMarginType(0, wxSTC_MARGIN_NUMBER); 
+    wxAuiNotebook* aui = new wxAuiNotebook(
+        rightPanel, 
+        wxID_ANY, 
+        wxDefaultPosition, wxDefaultSize, 
+        wxAUI_NB_DEFAULT_STYLE | wxNO_BORDER
+    );
 
-    wxFont lineNumberFont(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-    stc->StyleSetFont(wxSTC_STYLE_LINENUMBER, lineNumberFont);
+    wxStyledTextCtrl* stc = SetupTextEditor(aui);
+    aui->AddPage(stc, "SQL1");
+    aui->SetControlMargin(0);
 
-    auto updateMarginWidth = [stc]() {
-        int maxLines = stc->GetLineCount();
-        int digitCount = std::to_string(maxLines).length();
-        int marginWidth = digitCount * 11;  
-
-        stc->SetMarginWidth(0, marginWidth);
-    };
-
-    updateMarginWidth();
-
-    stc->Bind(wxEVT_STC_UPDATEUI, [updateMarginWidth, stc](wxStyledTextEvent& event) {
-        updateMarginWidth();
-    });
-
-    rightSizer->Add(stc, 1, wxEXPAND | wxALL, 5);
+    rightSizer->Add(aui, 1, wxEXPAND | wxALL, 4);
     rightPanel->SetSizer(rightSizer);
 
     splitter->SplitVertically(leftPanel, rightPanel);
@@ -74,6 +60,113 @@ MainFrame::MainFrame(std::string_view title)
     splitter->SetSashPosition(splitter->GetMinimumPaneSize());
 
     CreateMenuBar();
+}
+
+wxStyledTextCtrl* MainFrame::SetupTextEditor(wxWindow* parent) {
+    wxStyledTextCtrl* stc = new wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+    stc->SetMarginType(0, wxSTC_MARGIN_NUMBER);
+
+    wxFont font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    stc->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
+    stc->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColour(0, 0, 0));
+
+    auto updateMarginWidth = [stc]() {
+        int maxLines = stc->GetLineCount();
+        int digitCount = std::to_string(maxLines).length();
+        int marginWidth = digitCount * 12;
+
+        stc->SetMarginWidth(0, marginWidth);
+        };
+
+    updateMarginWidth();
+
+    stc->Bind(wxEVT_STC_UPDATEUI, [updateMarginWidth, stc](wxStyledTextEvent& event) {
+        updateMarginWidth();
+        });
+
+    stc->SetCaretLineVisible(true);
+    stc->SetCaretStyle(wxSTC_CARETSTYLE_BLOCK);
+    stc->SetCaretForeground(wxColour(150, 150, 150));
+    stc->SetCaretLineBackground(wxColour(235, 235, 235));
+    stc->SetIndentationGuides(wxSTC_IV_LOOKBOTH);
+    stc->SetIndent(4);
+
+    // Set lexer for stc
+    stc->SetLexer(wxSTC_LEX_SQL);
+
+    // Keywords for SQL to highlight
+    const char* sqlKeywords =
+        "select from where insert into update delete create drop alter table "
+        "index view trigger begin commit rollback values primary key foreign "
+        "not null default as and or like in is between join inner outer left right on";
+
+    stc->SetKeyWords(0, sqlKeywords);
+
+    // Syntax highlighting for SQL
+    stc->StyleSetForeground(wxSTC_SQL_IDENTIFIER, AppColours::SQLSyntax::IDENTIFIER);
+    stc->StyleSetForeground(wxSTC_SQL_NUMBER, AppColours::SQLSyntax::NUMBER);
+    stc->StyleSetForeground(wxSTC_SQL_WORD, AppColours::SQLSyntax::WORD);
+    stc->StyleSetForeground(wxSTC_SQL_COMMENT, AppColours::SQLSyntax::COMMENT);
+    stc->StyleSetForeground(wxSTC_SQL_COMMENTLINE, AppColours::SQLSyntax::COMMENT);
+    stc->StyleSetForeground(wxSTC_SQL_STRING, AppColours::SQLSyntax::STRING);
+
+    // Setup keybinds
+    
+    wxAcceleratorEntry entries[6];
+    entries[0].Set(wxACCEL_CTRL, ( int ) 'C', wxID_COPY);
+    entries[1].Set(wxACCEL_CTRL, ( int ) 'V', wxID_PASTE);
+    entries[2].Set(wxACCEL_CTRL, ( int ) 'X', wxID_CUT);
+    entries[3].Set(wxACCEL_CTRL, ( int ) 'A', wxID_SELECTALL);
+    entries[4].Set(wxACCEL_CTRL, ( int ) 'Z', wxID_UNDO);
+    entries[5].Set(wxACCEL_CTRL, ( int ) 'Y', wxID_REDO);
+    wxAcceleratorTable accel(6, entries);
+    stc->SetAcceleratorTable(accel);
+
+    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->Copy(); }, wxID_COPY);
+    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->Paste(); }, wxID_PASTE);
+    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->Cut(); }, wxID_CUT);
+    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->SelectAll(); }, wxID_SELECTALL);
+    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->Undo(); }, wxID_UNDO);
+    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->Redo(); }, wxID_REDO);
+
+    return stc;
+}
+
+wxDataViewTreeCtrl* MainFrame::SetupTableTreeView(wxPanel* parent) {
+    wxDataViewTreeCtrl* treeCtrl = new wxDataViewTreeCtrl(
+        parent, 
+        wxID_ANY, 
+        wxDefaultPosition, wxDefaultSize,
+        wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_MULTIPLE | wxDV_HORIZ_RULES | wxBORDER_STATIC | wxDV_NO_HEADER
+    );
+
+    treeCtrl->SetRowHeight(18);
+
+    // Disable editing of tree ctrl items
+    treeCtrl->Bind(wxEVT_DATAVIEW_ITEM_START_EDITING, [](wxDataViewEvent& event) {
+        event.Veto();
+    });
+
+    // Root node
+    wxDataViewItem tables = treeCtrl->AppendContainer(wxDataViewItem(nullptr), "Tables (0)");
+    treeCtrl->AppendItem(tables, "Table 1");
+    treeCtrl->AppendItem(tables, "Table 2");
+    treeCtrl->AppendItem(tables, "Table 3");
+    treeCtrl->AppendItem(tables, "Table 4");
+    
+    wxDataViewItem views = treeCtrl->AppendContainer(wxDataViewItem(nullptr), "Views (0)");
+    treeCtrl->AppendItem(views, "View 1");
+    treeCtrl->AppendItem(views, "View 2");
+
+    wxDataViewItem indexes = treeCtrl->AppendContainer(wxDataViewItem(nullptr), "Indexes (0)");
+    treeCtrl->AppendItem(indexes, "Index 1");
+    treeCtrl->AppendItem(indexes, "Index 2");
+    treeCtrl->AppendItem(indexes, "Index 3");
+
+    wxDataViewItem triggers = treeCtrl->AppendContainer(wxDataViewItem(nullptr), "Triggers (0)");
+    treeCtrl->AppendItem(triggers, "Trigger 1");
+
+    return treeCtrl;
 }
 
 void MainFrame::CreateMenuBar() {

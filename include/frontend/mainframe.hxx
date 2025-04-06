@@ -3,6 +3,8 @@
 // WX Components
 #include <wx/wx.h> // wx Core
 #include <wx/frame.h> // wxFrame
+#include <wx/stc/stc.h> // wxStyledTextCtrl
+#include <wx/dataview.h> // wxDataViewTreeCtrl
 
 /**
  * @class MainFrame
@@ -14,4 +16,6 @@ public:
     ~MainFrame() override = default;
 
     void CreateMenuBar();
+    wxStyledTextCtrl* SetupTextEditor(wxWindow* parent);
+    wxDataViewTreeCtrl* SetupTableTreeView(wxPanel* parent);
 };
