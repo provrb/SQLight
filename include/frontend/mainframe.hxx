@@ -16,6 +16,11 @@ public:
     ~MainFrame() override = default;
 
     void CreateMenuBar();
-    wxStyledTextCtrl* SetupTextEditor(wxWindow* parent);
+    wxString GetSQLWordList();
+    void SetupTextEditor(wxWindow* parent);
     wxDataViewTreeCtrl* SetupTableTreeView(wxPanel* parent);
+private:
+    void OnCharAdded(wxStyledTextEvent& event);
+
+    wxStyledTextCtrl* m_textEditor;
 };

@@ -48,8 +48,8 @@ MainFrame::MainFrame(std::string_view title)
         wxAUI_NB_DEFAULT_STYLE | wxNO_BORDER
     );
 
-    wxStyledTextCtrl* stc = SetupTextEditor(aui);
-    aui->AddPage(stc, "SQL1");
+    SetupTextEditor(aui);
+    aui->AddPage(m_textEditor, "SQL1");
     aui->SetControlMargin(0);
 
     rightSizer->Add(aui, 1, wxEXPAND | wxALL, 4);
@@ -62,53 +62,52 @@ MainFrame::MainFrame(std::string_view title)
     CreateMenuBar();
 }
 
-wxStyledTextCtrl* MainFrame::SetupTextEditor(wxWindow* parent) {
-    wxStyledTextCtrl* stc = new wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
-    stc->SetMarginType(0, wxSTC_MARGIN_NUMBER);
+void MainFrame::SetupTextEditor(wxWindow* parent) {
+    m_textEditor = new wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+    m_textEditor->SetMarginType(0, wxSTC_MARGIN_NUMBER);
 
     wxFont font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-    stc->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
-    stc->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColour(0, 0, 0));
+    m_textEditor->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
+    m_textEditor->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColour(0, 0, 0));
 
-    auto updateMarginWidth = [stc]() {
-        int maxLines = stc->GetLineCount();
+    auto updateMarginWidth = [this]() {
+        int maxLines = m_textEditor->GetLineCount();
         int digitCount = std::to_string(maxLines).length();
         int marginWidth = digitCount * 12;
 
-        stc->SetMarginWidth(0, marginWidth);
-        };
+        m_textEditor->SetMarginWidth(0, marginWidth);
+    };
 
     updateMarginWidth();
 
-    stc->Bind(wxEVT_STC_UPDATEUI, [updateMarginWidth, stc](wxStyledTextEvent& event) {
+    m_textEditor->Bind(wxEVT_STC_UPDATEUI, [updateMarginWidth](wxStyledTextEvent& event) {
         updateMarginWidth();
-        });
+    });
 
-    stc->SetCaretLineVisible(true);
-    stc->SetCaretStyle(wxSTC_CARETSTYLE_BLOCK);
-    stc->SetCaretForeground(wxColour(150, 150, 150));
-    stc->SetCaretLineBackground(wxColour(235, 235, 235));
-    stc->SetIndentationGuides(wxSTC_IV_LOOKBOTH);
-    stc->SetIndent(4);
+    // Auto completion settings
+    m_textEditor->AutoCompSetIgnoreCase(true);
+
+    // Set background and foreground colors. Default settings
+    m_textEditor->SetCaretLineVisible(true);
+    m_textEditor->SetCaretStyle(wxSTC_CARETSTYLE_BLOCK);
+    m_textEditor->SetCaretForeground(wxColour(150, 150, 150));
+    m_textEditor->SetCaretLineBackground(wxColour(235, 235, 235));
+    m_textEditor->SetIndentationGuides(wxSTC_IV_LOOKBOTH);
+    m_textEditor->SetIndent(4);
 
     // Set lexer for stc
-    stc->SetLexer(wxSTC_LEX_SQL);
-
-    // Keywords for SQL to highlight
-    const char* sqlKeywords =
-        "select from where insert into update delete create drop alter table "
-        "index view trigger begin commit rollback values primary key foreign "
-        "not null default as and or like in is between join inner outer left right on";
-
-    stc->SetKeyWords(0, sqlKeywords);
+    m_textEditor->SetLexer(wxSTC_LEX_SQL);
+    
+    // Set keywords for SQL
+    m_textEditor->SetKeyWords(0, GetSQLWordList());
 
     // Syntax highlighting for SQL
-    stc->StyleSetForeground(wxSTC_SQL_IDENTIFIER, AppColours::SQLSyntax::IDENTIFIER);
-    stc->StyleSetForeground(wxSTC_SQL_NUMBER, AppColours::SQLSyntax::NUMBER);
-    stc->StyleSetForeground(wxSTC_SQL_WORD, AppColours::SQLSyntax::WORD);
-    stc->StyleSetForeground(wxSTC_SQL_COMMENT, AppColours::SQLSyntax::COMMENT);
-    stc->StyleSetForeground(wxSTC_SQL_COMMENTLINE, AppColours::SQLSyntax::COMMENT);
-    stc->StyleSetForeground(wxSTC_SQL_STRING, AppColours::SQLSyntax::STRING);
+    m_textEditor->StyleSetForeground(wxSTC_SQL_IDENTIFIER, AppColours::SQLSyntax::IDENTIFIER);
+    m_textEditor->StyleSetForeground(wxSTC_SQL_NUMBER, AppColours::SQLSyntax::NUMBER);
+    m_textEditor->StyleSetForeground(wxSTC_SQL_WORD, AppColours::SQLSyntax::WORD);
+    m_textEditor->StyleSetForeground(wxSTC_SQL_COMMENT, AppColours::SQLSyntax::COMMENT);
+    m_textEditor->StyleSetForeground(wxSTC_SQL_COMMENTLINE, AppColours::SQLSyntax::COMMENT);
+    m_textEditor->StyleSetForeground(wxSTC_SQL_STRING, AppColours::SQLSyntax::STRING);
 
     // Setup keybinds
     
@@ -120,16 +119,51 @@ wxStyledTextCtrl* MainFrame::SetupTextEditor(wxWindow* parent) {
     entries[4].Set(wxACCEL_CTRL, ( int ) 'Z', wxID_UNDO);
     entries[5].Set(wxACCEL_CTRL, ( int ) 'Y', wxID_REDO);
     wxAcceleratorTable accel(6, entries);
-    stc->SetAcceleratorTable(accel);
+    m_textEditor->SetAcceleratorTable(accel);
 
-    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->Copy(); }, wxID_COPY);
-    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->Paste(); }, wxID_PASTE);
-    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->Cut(); }, wxID_CUT);
-    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->SelectAll(); }, wxID_SELECTALL);
-    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->Undo(); }, wxID_UNDO);
-    stc->Bind(wxEVT_MENU, [stc](wxCommandEvent&) { stc->Redo(); }, wxID_REDO);
+    m_textEditor->Bind(wxEVT_MENU, [this](wxCommandEvent&) { m_textEditor->Copy(); }, wxID_COPY);
+    m_textEditor->Bind(wxEVT_MENU, [this](wxCommandEvent&) { m_textEditor->Paste(); }, wxID_PASTE);
+    m_textEditor->Bind(wxEVT_MENU, [this](wxCommandEvent&) { m_textEditor->Cut(); }, wxID_CUT);
+    m_textEditor->Bind(wxEVT_MENU, [this](wxCommandEvent&) { m_textEditor->SelectAll(); }, wxID_SELECTALL);
+    m_textEditor->Bind(wxEVT_MENU, [this](wxCommandEvent&) { m_textEditor->Undo(); }, wxID_UNDO);
+    m_textEditor->Bind(wxEVT_MENU, [this](wxCommandEvent&) { m_textEditor->Redo(); }, wxID_REDO);
 
-    return stc;
+    // Bind events
+    m_textEditor->Bind(wxEVT_STC_CHARADDED, &MainFrame::OnCharAdded, this);
+
+}
+
+void MainFrame::OnCharAdded(wxStyledTextEvent& event) {
+    char c = event.GetKey();
+    if ( !std::isalnum(c) ) {
+        return; 
+    }
+
+    int pos = m_textEditor->GetCurrentPos();
+    int start = m_textEditor->WordStartPosition(pos, true);
+    int wordLen = pos - start;
+
+    wxString wordList = GetSQLWordList();
+
+    wxArrayString words = wxSplit(wordList, ' ');
+
+    wxArrayString filteredWords;
+    wxString typedWord = m_textEditor->GetTextRange(start, pos);
+
+    for ( const auto& word : words ) {
+        if ( word.Lower().StartsWith(typedWord.Lower()) ) {
+            filteredWords.Add(word);
+        }
+    }
+
+    if ( filteredWords.IsEmpty() )
+        return;
+
+    wxString filteredWordList = wxJoin(filteredWords, ' ');
+
+    m_textEditor->AutoCompShow(wordLen, filteredWordList);
+
+    event.Skip();
 }
 
 wxDataViewTreeCtrl* MainFrame::SetupTableTreeView(wxPanel* parent) {
@@ -222,4 +256,12 @@ void MainFrame::CreateMenuBar() {
     menuBar->Append(helpMenu, "&Help");
     SetMenuBar(menuBar);
 
+}
+
+wxString MainFrame::GetSQLWordList() {
+    wxString kwds =
+        "from select where insert into update delete create drop alter table "
+        "index view trigger begin commit rollback values primary key foreign "
+        "not null default as and or like in is between join inner outer left right on";
+    return kwds;
 }
