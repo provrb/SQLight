@@ -1,0 +1,7 @@
+# ninja log v6
+6	16	7659345446096319	clean	8c45b54705a541e8
+13	2559	7659345446394470	CMakeFiles/SQLight.dir/src/frontend/app.cxx.obj	43254fd26d198595
+17	2640	7659345446434476	CMakeFiles/SQLight.dir/src/frontend/main_frame.cxx.obj	529b0cbc0632582b
+17	2278	7659346353546725	CMakeFiles/SQLight.dir/src/frontend/app.cxx.obj	ca9fefb716e7d4a5
+20	2560	7659346353586720	CMakeFiles/SQLight.dir/src/frontend/main_frame.cxx.obj	6d7412cfcb6b1172
+2560	3154	7659346378988710	SQLight.exe	1b319423e538235b

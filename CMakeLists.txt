@@ -27,7 +27,7 @@ file(GLOB_RECURSE SRC_FILES
 find_package(wxWidgets REQUIRED COMPONENTS core base stc aui)
 
 # Define the executable
-add_executable(SQLight ${SRC_FILES})
+add_executable(SQLight ${SRC_FILES}) 
 
 # Tell compiler to look for WinMain, not main, since this is a GUI app
 set_target_properties(SQLight PROPERTIES WIN32_EXECUTABLE TRUE)

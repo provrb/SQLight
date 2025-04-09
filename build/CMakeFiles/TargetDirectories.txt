@@ -1,0 +1,3 @@
+C:/Users/ethan/Desktop/SQLight/build/CMakeFiles/SQLight.dir
+C:/Users/ethan/Desktop/SQLight/build/CMakeFiles/edit_cache.dir
+C:/Users/ethan/Desktop/SQLight/build/CMakeFiles/rebuild_cache.dir
