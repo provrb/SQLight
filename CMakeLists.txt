@@ -24,7 +24,6 @@ file(GLOB_RECURSE SRC_FILES
 )
 
 # Find wxWidgets (core and base are minimum, add more if needed)
-set(wxWidgets_ROOT_DIR "C:/wxWidgets-3.3.0/")
 find_package(wxWidgets REQUIRED COMPONENTS core base stc aui)
 
 # Define the executable

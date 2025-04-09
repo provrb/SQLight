@@ -1,5 +1,5 @@
 #include "frontend/app.hxx"
-#include "frontend/mainframe.hxx"
+#include "frontend/main_frame.hxx"
 
 /**
  * @brief Initializes the wxWidgets application.

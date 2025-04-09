@@ -1,5 +1,6 @@
-#include "frontend/mainframe.hxx"
+#include "frontend/main_frame.hxx"
 #include "frontend/colours.hxx"
+#include "frontend/file_paths.hxx"
 
 #include <wx/splitter.h>
 #include <wx/clipbrd.h>
@@ -174,7 +175,17 @@ wxDataViewTreeCtrl* MainFrame::SetupTableTreeView(wxPanel* parent) {
         wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_MULTIPLE | wxDV_HORIZ_RULES | wxBORDER_STATIC | wxDV_NO_HEADER
     );
 
-    treeCtrl->SetRowHeight(18);
+    // Row icons
+    wxImage tableIcon(std::string(ASSET_DIR) + "table.png", wxBITMAP_TYPE_PNG);
+    wxImage viewsIcon(std::string(ASSET_DIR) + "views.png", wxBITMAP_TYPE_PNG);
+    wxImage indicesIcon(std::string(ASSET_DIR) + "indices.png", wxBITMAP_TYPE_PNG);
+    wxImage triggersIcon(std::string(ASSET_DIR) + "triggers.png", wxBITMAP_TYPE_PNG);
+    tableIcon = tableIcon.Scale(15, 16, wxIMAGE_QUALITY_HIGH);
+    viewsIcon = viewsIcon.Scale(15, 16, wxIMAGE_QUALITY_HIGH);
+    indicesIcon = indicesIcon.Scale(15, 16, wxIMAGE_QUALITY_HIGH);
+    triggersIcon = triggersIcon.Scale(15, 16, wxIMAGE_QUALITY_HIGH);
+    
+    treeCtrl->SetRowHeight(20);
 
     // Disable editing of tree ctrl items
     treeCtrl->Bind(wxEVT_DATAVIEW_ITEM_START_EDITING, [](wxDataViewEvent& event) {
@@ -199,6 +210,12 @@ wxDataViewTreeCtrl* MainFrame::SetupTableTreeView(wxPanel* parent) {
 
     wxDataViewItem triggers = treeCtrl->AppendContainer(wxDataViewItem(nullptr), "Triggers (0)");
     treeCtrl->AppendItem(triggers, "Trigger 1");
+    
+    // Set row icons
+    treeCtrl->SetItemIcon(tables, wxBitmap(tableIcon));
+    treeCtrl->SetItemIcon(views, wxBitmap(viewsIcon));
+    treeCtrl->SetItemIcon(indexes, wxBitmap(indicesIcon));
+    treeCtrl->SetItemIcon(triggers, wxBitmap(triggersIcon));
 
     return treeCtrl;
 }
