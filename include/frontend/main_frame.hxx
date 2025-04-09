@@ -5,6 +5,7 @@
 #include <wx/frame.h> // wxFrame
 #include <wx/stc/stc.h> // wxStyledTextCtrl
 #include <wx/dataview.h> // wxDataViewTreeCtrl
+#include <wx/aui/aui.h>
 
 /**
  * @class MainFrame
@@ -15,12 +16,23 @@ public:
     explicit MainFrame(std::string_view title);
     ~MainFrame() override = default;
 
-    void CreateMenuBar();
     wxString GetSQLWordList();
-    void SetupTextEditor(wxWindow* parent);
-    wxDataViewTreeCtrl* SetupTableTreeView(wxPanel* parent);
 private:
+    // Events
     void OnCharAdded(wxStyledTextEvent& event);
 
-    wxStyledTextCtrl* m_textEditor;
+    // Can the user close the aui page.
+    // If its essential to the user program, bind a close event
+    // and veto it.
+    void CheckNotCloseableTab(wxAuiNotebook* aui); 
+
+    // Setup functions which setup core ui.
+    // See 'setup.hxx' for function implementations
+    void SetupMenuBar();
+    void SetupTextEditor(wxWindow* parent);
+    void SetupStructureView(wxAuiNotebook* aui);
+    void SetupCommandOutput(wxAuiNotebook* aui);
+    wxDataViewTreeCtrl* SetupTableTreeView(wxPanel* parent);
+
+    wxStyledTextCtrl* m_textEditor; // styledTextCtrl IDE-like text editor
 };
