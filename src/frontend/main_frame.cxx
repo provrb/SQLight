@@ -24,7 +24,7 @@ MainFrame::MainFrame(std::string_view title)
 
     wxDataViewTreeCtrl* treeCtrl = SetupTableTreeView(leftPanel);
     
-    leftSizer->Add(treeCtrl, 1, wxEXPAND | wxALL, 8);
+    leftSizer->Add(treeCtrl, 1, wxEXPAND | wxLEFT | wxTOP | wxBOTTOM, 8);
     leftPanel->SetSizer(leftSizer);
 
     // Right panel
@@ -58,7 +58,7 @@ MainFrame::MainFrame(std::string_view title)
     
     aui->SetControlMargin(0);
 
-    rightSizer->Add(aui, 1, wxEXPAND | wxALL, 4);
+    rightSizer->Add(aui, 1, wxEXPAND | wxTOP | wxLEFT | wxBOTTOM, 7);
     rightPanel->SetSizer(rightSizer);
 
     splitter->SplitVertically(leftPanel, rightPanel);
@@ -139,7 +139,7 @@ void MainFrame::SetupTextEditor(wxWindow* parent) {
     m_textEditor->SetCaretLineVisible(true);
     m_textEditor->SetCaretStyle(wxSTC_CARETSTYLE_BLOCK);
     m_textEditor->SetCaretForeground(wxColour(150, 150, 150));
-    m_textEditor->SetCaretLineBackground(wxColour(235, 235, 235));
+    m_textEditor->SetCaretLineBackground(parent->GetBackgroundColour());
     m_textEditor->SetIndentationGuides(wxSTC_IV_LOOKBOTH);
     m_textEditor->SetIndent(4);
 
@@ -263,6 +263,21 @@ void MainFrame::SetupStructureView(wxAuiNotebook* aui) {
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     wxListCtrl* listCtrl = new wxListCtrl(structureView, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxNO_BORDER);
 
+    // add choices to select a table
+    wxArrayString options;
+    options.Add("O1");
+    options.Add("O2");
+    options.Add("O3");
+
+    wxStaticText* selectLabel = new wxStaticText(structureView, wxID_ANY, "&Table: ");
+    wxChoice* dropdown = new wxChoice(structureView, wxID_ANY, wxDefaultPosition, wxSize(150, 20), options);
+    structureView->SetBackgroundColour(wxColour(255, 255, 255));
+
+    wxBoxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+    hSizer->Add(selectLabel, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxLEFT, 5); 
+    hSizer->Add(dropdown, 0, wxTOP, 5);
+
+    sizer->Add(hSizer);
     sizer->Add(listCtrl, 1, wxEXPAND);
     structureView->SetSizer(sizer);
 
