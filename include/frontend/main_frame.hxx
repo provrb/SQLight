@@ -6,6 +6,7 @@
 #include <wx/stc/stc.h> // wxStyledTextCtrl
 #include <wx/dataview.h> // wxDataViewTreeCtrl
 #include <wx/aui/aui.h>
+#include <wx/grid.h>
 
 /**
  * @class MainFrame
@@ -17,6 +18,8 @@ public:
     ~MainFrame() override = default;
 
     wxString GetSQLWordList();
+    void AppendTableColumn(const std::string& name);
+
 private:
     // Events
     void OnCharAdded(wxStyledTextEvent& event);
@@ -35,4 +38,5 @@ private:
     wxDataViewTreeCtrl* SetupTableTreeView(wxPanel* parent);
 
     wxStyledTextCtrl* m_textEditor; // styledTextCtrl IDE-like text editor
+    wxGrid* m_tableDataView;
 };

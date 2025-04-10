@@ -55,6 +55,7 @@ MainFrame::MainFrame(std::string_view title)
     aui->AddPage(m_textEditor, "*SQL1");
     SetupStructureView(aui);
     SetupCommandOutput(aui);
+    AppendTableColumn("hello");
     
     aui->SetControlMargin(0);
 
@@ -121,6 +122,10 @@ wxString MainFrame::GetSQLWordList() {
     return kwds;
 }
 
+void MainFrame::AppendTableColumn(const std::string& name) {
+    if ( !m_tableDataView )
+        return;
+}
 
 void MainFrame::SetupTextEditor(wxWindow* parent) {
     // Create text editor
@@ -259,9 +264,27 @@ wxDataViewTreeCtrl* MainFrame::SetupTableTreeView(wxPanel* parent) {
 }
 
 void MainFrame::SetupStructureView(wxAuiNotebook* aui) {
+    if ( m_tableDataView ) // already been setup
+        return;
+
     wxPanel* structureView = new wxPanel(aui);
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-    wxListCtrl* listCtrl = new wxListCtrl(structureView, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxNO_BORDER);
+    
+    // create editing grid
+    m_tableDataView = new wxGrid(structureView, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxBORDER_STATIC);
+    m_tableDataView->CreateGrid(16, 5);
+    m_tableDataView->SetLabelFont(wxFontInfo(9).Weight(wxFONTWEIGHT_NORMAL));
+    m_tableDataView->SetColLabelSize(20);
+    m_tableDataView->DisableOverlaySelection();
+    m_tableDataView->SetRowLabelAlignment(wxALIGN_LEFT, wxALIGN_CENTER);
+    m_tableDataView->SetLabelBackgroundColour(*wxWHITE);
+    m_tableDataView->SetDefaultCellAlignment(wxALIGN_RIGHT, wxALIGN_CENTER);
+
+    for ( int i = 1; i <= m_tableDataView->GetNumberRows(); i++ ) {
+        int digitCount = std::to_string(i).length();
+        int width = digitCount * 11;
+        m_tableDataView->SetRowLabelSize(width);
+    }
 
     // add choices to select a table
     wxArrayString options;
@@ -273,12 +296,25 @@ void MainFrame::SetupStructureView(wxAuiNotebook* aui) {
     wxChoice* dropdown = new wxChoice(structureView, wxID_ANY, wxDefaultPosition, wxSize(150, 20), options);
     structureView->SetBackgroundColour(wxColour(255, 255, 255));
 
+    wxTextCtrl* cellInfo = new wxTextCtrl(structureView, wxID_ANY, wxEmptyString,  wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC | wxTE_READONLY);
+    // cellInfo->SetBackgroundColour(*wxWHITE);
+    cellInfo->SetForegroundColour(wxColour(120, 120, 120));
+    cellInfo->AppendText("Cell information will appear here...");
+
     wxBoxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
     hSizer->Add(selectLabel, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxLEFT, 5); 
     hSizer->Add(dropdown, 0, wxTOP, 5);
 
+    wxStaticText* infoLabel = new wxStaticText(structureView, wxID_ANY, "&Cell Info: Row 0, Column 0");
+    wxBoxSizer* hSizerBottom = new wxBoxSizer(wxHORIZONTAL);
+    hSizerBottom->Add(infoLabel, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxLEFT, 5);
+
     sizer->Add(hSizer);
-    sizer->Add(listCtrl, 1, wxEXPAND);
+    m_tableDataView->SetMaxSize(wxSize(INT_MAX, 200));
+    sizer->Add(m_tableDataView, 0, wxEXPAND | wxTOP, 5);
+    sizer->Add(hSizerBottom);
+    sizer->Add(cellInfo, 1, wxEXPAND | wxTOP, 5);
+    sizer->SetItemMinSize(cellInfo, 100, 100);
     structureView->SetSizer(sizer);
 
     aui->AddPage(structureView, "Records"); // add page
@@ -291,10 +327,11 @@ void MainFrame::SetupCommandOutput(wxAuiNotebook* aui) {
     wxTextCtrl* textCtrl = new wxTextCtrl(output, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxNO_BORDER | wxTE_READONLY);
 
     textCtrl->SetForegroundColour(wxColour(120, 120, 120));
+    output->SetBackgroundColour(*wxWHITE);
 
     textCtrl->AppendText("Command output will appear here...");
 
-    sizer->Add(textCtrl, 1, wxEXPAND);
+    sizer->Add(textCtrl, 1, wxEXPAND | wxTOP, 5);
     output->SetSizer(sizer);
     aui->AddPage(output, "Output");
     CheckNotCloseableTab(aui);
