@@ -1,4 +1,4 @@
-// Frontend
+﻿// Frontend
 #include "frontend/main_frame.hxx"
 #include "frontend/colours.hxx"
 #include "frontend/file_paths.hxx"
@@ -8,9 +8,12 @@
 #include <wx/listctrl.h>
 #include <wx/aui/auibook.h>
 
+#include <Windows.h>
+
 MainFrame::MainFrame(std::string_view title)
     : wxFrame(nullptr, wxID_ANY, title.data(), wxDefaultPosition, wxSize(800, 600))
 {
+    SetThemeEnabled(true);
     wxInitAllImageHandlers();
     SetTitle("SQLight - No file open");
 
