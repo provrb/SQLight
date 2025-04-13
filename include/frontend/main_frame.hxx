@@ -19,7 +19,6 @@ public:
 
     wxString GetSQLWordList();
     void AppendTableColumn(const std::string& name);
-
 private:
     // Events
     void OnCharAdded(wxStyledTextEvent& event);
@@ -27,10 +26,9 @@ private:
     // Can the user close the aui page.
     // If its essential to the user program, bind a close event
     // and veto it.
-    void CheckNotCloseableTab(wxAuiNotebook* aui); 
+    void PreventEssentialTabClosure(wxAuiNotebook* aui); 
 
     // Setup functions which setup core ui.
-    void SetupCustomTitleBar();
     void SetupMenuBar();
     void SetupTextEditor(wxWindow* parent);
     void SetupStructureView(wxAuiNotebook* aui);

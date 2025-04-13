@@ -1,11 +1,26 @@
+// Frontend
 #include "frontend/main_frame.hxx"
 #include "frontend/colours.hxx"
 #include "frontend/file_paths.hxx"
 
-#include <wx/splitter.h>
-#include <wx/listctrl.h>
-#include <wx/aui/auibook.h>
+// WX Components
+#include <wx/splitter.h> // wxSplitterWindow 
+#include <wx/listctrl.h> // wxListCtrl
+#include <wx/aui/auibook.h> // wxAuiNotebook
 
+/**
+ * @brief Initializes and configures the main text editor used for SQL editing.
+ *
+ * This function creates a `wxStyledTextCtrl` with customized appearance and behavior for SQL code editing.
+ * It configures features like:
+ * - Syntax highlighting for SQL keywords, comments, strings, numbers, and identifiers.
+ * - Auto-completion.
+ * - Line numbers with dynamic margin sizing.
+ * - Custom font and color settings.
+ * - Common keyboard shortcuts (Ctrl+C, Ctrl+V, etc.).
+ *
+ * @param parent The parent window that hosts the text editor.
+ */
 void MainFrame::SetupTextEditor(wxWindow* parent) {
     // Create text editor
     m_textEditor = new wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxNO_BORDER);
@@ -27,10 +42,8 @@ void MainFrame::SetupTextEditor(wxWindow* parent) {
     m_textEditor->SetIndentationGuides(wxSTC_IV_LOOKBOTH);
     m_textEditor->SetIndent(4);
 
-    // Set lexer for stc
+    // Set lexer for stc and keywords for SQL
     m_textEditor->SetLexer(wxSTC_LEX_SQL);
-
-    // Set keywords for SQL
     m_textEditor->SetKeyWords(0, GetSQLWordList());
 
     // Syntax highlighting for SQL
@@ -74,9 +87,21 @@ void MainFrame::SetupTextEditor(wxWindow* parent) {
         int marginWidth = digitCount * 12;
 
         m_textEditor->SetMarginWidth(0, marginWidth);
-        });
+    });
 }
 
+/**
+ * @brief Creates and sets up a `wxDataViewTreeCtrl` for displaying database table structures.
+ *
+ * This tree view contains root nodes for "Tables", "Views", "Indexes", and "Triggers", each with associated icons.
+ * It also:
+ * - Prevents in-place editing of items.
+ * - Applies alternating row colors.
+ * - Configures columns for displaying the name and type of each item.
+ *
+ * @param parent The parent panel hosting the tree view.
+ * @return A pointer to the configured `wxDataViewTreeCtrl`.
+ */
 wxDataViewTreeCtrl* MainFrame::SetupTableTreeView(wxPanel* parent) {
     wxDataViewTreeCtrl* treeCtrl = new wxDataViewTreeCtrl(
         parent,
@@ -84,6 +109,10 @@ wxDataViewTreeCtrl* MainFrame::SetupTableTreeView(wxPanel* parent) {
         wxDefaultPosition, wxDefaultSize,
         wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_MULTIPLE | wxDV_HORIZ_RULES | wxBORDER_STATIC
     );
+
+    // Tree Ctrl settings
+    treeCtrl->SetRowHeight(19);
+    treeCtrl->SetAlternateRowColour(wxColour(240, 240, 240));
 
     // Row icons
     wxImage tableIcon(std::string(ASSET_DIR) + "table.png", wxBITMAP_TYPE_PNG);
@@ -105,31 +134,11 @@ wxDataViewTreeCtrl* MainFrame::SetupTableTreeView(wxPanel* parent) {
     wxDataViewColumn* typeCol = treeCtrl->AppendTextColumn("Type", 1);
     typeCol->SetMinWidth(40);
 
-    treeCtrl->SetRowHeight(19);
-
-    // Disable editing of tree ctrl items
-    treeCtrl->Bind(wxEVT_DATAVIEW_ITEM_START_EDITING, [](wxDataViewEvent& event) {
-        event.Veto();
-        });
-
-    // Root node
+    // Root nodes
     wxDataViewItem tables = treeCtrl->AppendContainer(wxDataViewItem(nullptr), "Tables (0)");
-    treeCtrl->AppendItem(tables, "Table 1");
-    treeCtrl->AppendItem(tables, "Table 2");
-    treeCtrl->AppendItem(tables, "Table 3");
-    treeCtrl->AppendItem(tables, "Table 4");
-
     wxDataViewItem views = treeCtrl->AppendContainer(wxDataViewItem(nullptr), "Views (0)");
-    treeCtrl->AppendItem(views, "View 1");
-    treeCtrl->AppendItem(views, "View 2");
-
     wxDataViewItem indexes = treeCtrl->AppendContainer(wxDataViewItem(nullptr), "Indexes (0)");
-    treeCtrl->AppendItem(indexes, "Index 1");
-    treeCtrl->AppendItem(indexes, "Index 2");
-    treeCtrl->AppendItem(indexes, "Index 3");
-
     wxDataViewItem triggers = treeCtrl->AppendContainer(wxDataViewItem(nullptr), "Triggers (0)");
-    treeCtrl->AppendItem(triggers, "Trigger 1");
 
     // Set row icons
     treeCtrl->SetItemIcon(tables, wxBitmap(tableIcon));
@@ -137,78 +146,123 @@ wxDataViewTreeCtrl* MainFrame::SetupTableTreeView(wxPanel* parent) {
     treeCtrl->SetItemIcon(indexes, wxBitmap(indicesIcon));
     treeCtrl->SetItemIcon(triggers, wxBitmap(triggersIcon));
 
-    treeCtrl->SetAlternateRowColour(wxColour(240, 240, 240));
+    // Bind events
+    // Disable editing of tree ctrl items
+    treeCtrl->Bind(wxEVT_DATAVIEW_ITEM_START_EDITING, [](wxDataViewEvent& event) {
+        event.Veto();
+    });
 
     return treeCtrl;
 }
 
+/**
+ * @brief Initializes the structure view panel containing a table data grid and information pane.
+ *
+ * This function sets up a vertically split panel within the notebook, where:
+ * - The top panel contains a `wxGrid` for editing table data and a dropdown for selecting which table to view.
+ * - The bottom panel shows metadata about the currently selected grid cell.
+ *
+ * Prevents multiple setups by checking if the grid already exists.
+ *
+ * @param aui The `wxAuiNotebook` to which this panel will be added as a tab named "Records".
+ */
 void MainFrame::SetupStructureView(wxAuiNotebook* aui) {
     if ( m_tableDataView ) // already been setup
         return;
 
+    // Main splitter window that holds top and bottom panels
     wxSplitterWindow* splitter = new wxSplitterWindow(aui);
 
-    wxPanel* topPanel = new wxPanel(splitter);
-    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
+    // Panels
+    wxPanel* topPanel = new wxPanel(splitter); // Panel on the top half of the splitter window
+    wxPanel* bottomPanel = new wxPanel(splitter);
+
+    topPanel->SetBackgroundColour(*wxWHITE);
+    bottomPanel->SetBackgroundColour(*wxWHITE);
 
     // create editing grid
-    m_tableDataView = new wxGrid(topPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxBORDER_STATIC);
+    m_tableDataView = new wxGrid(
+        topPanel, 
+        wxID_ANY, 
+        wxDefaultPosition, 
+        wxDefaultSize, 
+        wxLC_REPORT | wxBORDER_STATIC
+    );
+
+    // Editing grid settings
     m_tableDataView->CreateGrid(16, 5);
     m_tableDataView->SetLabelFont(wxFontInfo(9).Weight(wxFONTWEIGHT_NORMAL));
-    m_tableDataView->SetColLabelSize(20);
+    m_tableDataView->SetFont(wxFontInfo(9).Weight(wxFONTWEIGHT_NORMAL));
+    m_tableDataView->SetColLabelSize(wxGRID_AUTOSIZE);
+    m_tableDataView->SetRowLabelSize(wxGRID_AUTOSIZE);
     m_tableDataView->DisableOverlaySelection();
     m_tableDataView->SetRowLabelAlignment(wxALIGN_LEFT, wxALIGN_CENTER);
     m_tableDataView->SetLabelBackgroundColour(*wxWHITE);
     m_tableDataView->SetDefaultCellAlignment(wxALIGN_RIGHT, wxALIGN_CENTER);
 
-    for ( int i = 1; i <= m_tableDataView->GetNumberRows(); i++ ) {
-        int digitCount = std::to_string(i).length();
-        int width = digitCount * 11;
-        m_tableDataView->SetRowLabelSize(width);
-    }
-
     // add choices to select a table
+    // dummy options. this would be the table names you select to view
     wxArrayString options;
     options.Add("O1");
     options.Add("O2");
     options.Add("O3");
 
+    /*
+        Top panel components
+    
+        1. Select label - e.g: "Table: ..."
+        2. Dropdown to select which table to view
+        3. Sizer to align the label and dropdown horizontally
+    */
     wxStaticText* selectLabel = new wxStaticText(topPanel, wxID_ANY, "&Table: ");
     wxChoice* dropdown = new wxChoice(topPanel, wxID_ANY, wxDefaultPosition, wxSize(150, 20), options);
-    topPanel->SetBackgroundColour(wxColour(255, 255, 255));
+    wxBoxSizer* toolbarSizer = new wxBoxSizer(wxHORIZONTAL);
+    toolbarSizer->Add(selectLabel, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxLEFT, 5);
+    toolbarSizer->Add(dropdown, 0, wxTOP, 5);
 
-    wxPanel* bottomPanel = new wxPanel(splitter);
-
-    wxTextCtrl* cellInfo = new wxTextCtrl(bottomPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC | wxTE_READONLY);
-    // cellInfo->SetBackgroundColour(*wxWHITE);
-    cellInfo->SetForegroundColour(wxColour(120, 120, 120));
-    cellInfo->AppendText("Cell information will appear here...");
-
-    wxBoxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-    hSizer->Add(selectLabel, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxLEFT, 5);
-    hSizer->Add(dropdown, 0, wxTOP, 5);
-
-    wxStaticText* infoLabel = new wxStaticText(bottomPanel, wxID_ANY, "&Cell Info: Row 0, Column 0");
-    wxBoxSizer* hSizerBottom = new wxBoxSizer(wxVERTICAL);
-    hSizerBottom->Add(infoLabel, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxLEFT, 5);
-    hSizerBottom->Add(cellInfo, 1, wxEXPAND | wxTOP, 5);
-
-    topSizer->Add(hSizer);
+    // Top panel sizing
+    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
+    topSizer->Add(toolbarSizer);
     topSizer->Add(m_tableDataView, 1, wxEXPAND | wxTOP, 5);
     topPanel->SetSizer(topSizer);
 
-    bottomPanel->SetBackgroundColour(*wxWHITE);
-    bottomPanel->SetSizer(hSizerBottom);
+    /*
+        Bottom panel components
 
+        1. Info label - e.g: "Cell Info: Row X, Column X" 
+                             Tells which cell is selected in the grid
+        2. Cell Info Text Ctrl - More detailed description about the type of
+                                 data in the selected cell.
+    */
+    wxStaticText* infoLabel = new wxStaticText(bottomPanel, wxID_ANY, "&Cell Info: Row 0, Column 0");
+    wxTextCtrl* cellInfo = new wxTextCtrl(bottomPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxBORDER_STATIC | wxTE_READONLY);
+    cellInfo->SetForegroundColour(wxColour(120, 120, 120));
+    cellInfo->AppendText("Cell information will appear here...");
+
+    // Bottom sizer
+    wxBoxSizer* bottomSizer = new wxBoxSizer(wxVERTICAL);
+    bottomSizer->Add(infoLabel, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxLEFT, 5);
+    bottomSizer->Add(cellInfo, 1, wxEXPAND | wxTOP, 5);
+    bottomPanel->SetSizer(bottomSizer);
+
+    // Splitter settings
     splitter->SetMinimumPaneSize(200);
     splitter->SplitHorizontally(topPanel, bottomPanel);
     splitter->SetSashPosition(splitter->GetMinimumPaneSize());
 
-    aui->AddPage(splitter, "Records"); // add page
-
-    CheckNotCloseableTab(aui);
+    // Add page
+    aui->AddPage(splitter, "Records"); 
+    PreventEssentialTabClosure(aui); // ensure this page cannot be closed
 }
 
+/**
+ * @brief Adds a tab for command output display to the given notebook.
+ *
+ * The output panel includes a read-only `wxTextCtrl` to show logs or messages from SQL commands or application events.
+ * Text control is styled for visual clarity.
+ *
+ * @param aui The `wxAuiNotebook` to which the output panel will be added as a tab named "Output".
+ */
 void MainFrame::SetupCommandOutput(wxAuiNotebook* aui) {
     wxPanel* output = new wxPanel(aui);
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -222,9 +276,20 @@ void MainFrame::SetupCommandOutput(wxAuiNotebook* aui) {
     sizer->Add(textCtrl, 1, wxEXPAND | wxTOP, 5);
     output->SetSizer(sizer);
     aui->AddPage(output, "Output");
-    CheckNotCloseableTab(aui);
+    PreventEssentialTabClosure(aui);
 }
 
+/**
+ * @brief Creates and populates the application’s menu bar with standard entries.
+ *
+ * Sets up menus for:
+ * - File operations (New, Open, Save, Exit)
+ * - Edit operations (Undo, Redo, Copy, Paste, Table operations)
+ * - Selection and viewing options
+ * - Execution and Help (not fully shown)
+ *
+ * Each menu item includes keyboard shortcuts and descriptive tooltips.
+ */
 void MainFrame::SetupMenuBar() {
     wxMenu* fileMenu = new wxMenu;
     wxMenu* editMenu = new wxMenu;
