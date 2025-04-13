@@ -30,7 +30,7 @@ private:
     void CheckNotCloseableTab(wxAuiNotebook* aui); 
 
     // Setup functions which setup core ui.
-    // See 'setup.hxx' for function implementations
+    void SetupCustomTitleBar();
     void SetupMenuBar();
     void SetupTextEditor(wxWindow* parent);
     void SetupStructureView(wxAuiNotebook* aui);
