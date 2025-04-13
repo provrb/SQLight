@@ -115,10 +115,10 @@ wxDataViewTreeCtrl* MainFrame::SetupTableTreeView(wxPanel* parent) {
     treeCtrl->SetAlternateRowColour(wxColour(240, 240, 240));
 
     // Row icons
-    wxImage tableIcon(std::string(ASSET_DIR) + "table.png", wxBITMAP_TYPE_PNG);
-    wxImage viewsIcon(std::string(ASSET_DIR) + "views.png", wxBITMAP_TYPE_PNG);
-    wxImage indicesIcon(std::string(ASSET_DIR) + "indices.png", wxBITMAP_TYPE_PNG);
-    wxImage triggersIcon(std::string(ASSET_DIR) + "triggers.png", wxBITMAP_TYPE_PNG);
+    wxImage tableIcon(ASSET_DIR + "table.png", wxBITMAP_TYPE_PNG);
+    wxImage viewsIcon(ASSET_DIR + "views.png", wxBITMAP_TYPE_PNG);
+    wxImage indicesIcon(ASSET_DIR + "indices.png", wxBITMAP_TYPE_PNG);
+    wxImage triggersIcon(ASSET_DIR + "triggers.png", wxBITMAP_TYPE_PNG);
     tableIcon = tableIcon.Scale(15, 16, wxIMAGE_QUALITY_HIGH);
     viewsIcon = viewsIcon.Scale(15, 16, wxIMAGE_QUALITY_HIGH);
     indicesIcon = indicesIcon.Scale(15, 16, wxIMAGE_QUALITY_HIGH);
@@ -212,13 +212,77 @@ void MainFrame::SetupStructureView(wxAuiNotebook* aui) {
     
         1. Select label - e.g: "Table: ..."
         2. Dropdown to select which table to view
-        3. Sizer to align the label and dropdown horizontally
+        3. Bitmap buttons like add new record, refresh, save...
+        4. Sizer to align the label and dropdown horizontally
     */
     wxStaticText* selectLabel = new wxStaticText(topPanel, wxID_ANY, "&Table: ");
     wxChoice* dropdown = new wxChoice(topPanel, wxID_ANY, wxDefaultPosition, wxSize(150, 20), options);
+
+    // Button to save the table as is to file
+    wxBitmap bmSave(ASSET_DIR + "save.png", wxBITMAP_TYPE_PNG);
+    bmSave.Rescale(bmSave, wxSize(25, 25));
+    wxBitmapButton* bSaveRecords = new wxBitmapButton(
+        topPanel,
+        wxID_ANY,
+        bmSave,
+        wxDefaultPosition, wxDefaultSize,
+        wxBORDER_NONE
+    );
+
+    bSaveRecords->SetBackgroundColour(*wxWHITE);
+    bSaveRecords->SetToolTip("Save table as displayed");
+
+    // Button to refresh the displayed records
+    wxBitmap bmRefresh(ASSET_DIR + "refresh.png", wxBITMAP_TYPE_PNG);
+    bmRefresh.Rescale(bmRefresh, wxSize(20, 19));
+    wxBitmapButton* bRefreshRecords = new wxBitmapButton(
+        topPanel,
+        wxID_ANY,
+        bmRefresh,
+        wxDefaultPosition, wxDefaultSize,
+        wxBORDER_NONE
+    );
+
+    bRefreshRecords->SetBackgroundColour(*wxWHITE);
+    bRefreshRecords->SetToolTip("Refresh records displayed");
+
+    // Button to create a new record
+    wxBitmap bmNew(ASSET_DIR + "new-record.png", wxBITMAP_TYPE_PNG);
+    bmNew.Rescale(bmNew, wxSize(25, 25));
+    wxBitmapButton* bNewRecord = new wxBitmapButton(
+        topPanel,
+        wxID_ANY,
+        bmNew,
+        wxDefaultPosition, wxDefaultSize,
+        wxBORDER_NONE
+    );
+
+    bNewRecord->SetBackgroundColour(*wxWHITE);
+    bNewRecord->SetToolTip("Create a new blank record");
+
+    // Button to delete a hovered record
+    wxBitmap bmDel(ASSET_DIR + "del-record.png", wxBITMAP_TYPE_PNG);
+    bmDel.Rescale(bmDel, wxSize(25, 25));
+    wxBitmapButton* bDeleteRecord = new wxBitmapButton(
+        topPanel,
+        wxID_ANY,
+        bmDel,
+        wxDefaultPosition, wxDefaultSize,
+        wxBORDER_NONE
+    );
+
+    bDeleteRecord->SetBackgroundColour(*wxWHITE);
+    bDeleteRecord->SetToolTip("Delete selected record");
+
     wxBoxSizer* toolbarSizer = new wxBoxSizer(wxHORIZONTAL);
     toolbarSizer->Add(selectLabel, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxLEFT, 5);
     toolbarSizer->Add(dropdown, 0, wxTOP, 5);
+    toolbarSizer->AddSpacer(9);
+    toolbarSizer->Add(bRefreshRecords, 0, wxTOP, 5);
+    toolbarSizer->AddSpacer(3);
+    toolbarSizer->Add(bSaveRecords, 0, wxTOP, 5);
+    toolbarSizer->Add(bNewRecord, 0, wxTOP, 5);
+    toolbarSizer->Add(bDeleteRecord, 0, wxTOP, 5);
 
     // Top panel sizing
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
