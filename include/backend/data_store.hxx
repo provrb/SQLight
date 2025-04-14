@@ -1,7 +1,7 @@
 #pragma once
 
 // SQLite
-#include "../ext/sqlite3.h"
+#include "ext/sqlite3.h"
 
 // STD
 #include <string>

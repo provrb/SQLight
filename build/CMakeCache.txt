@@ -44,6 +44,24 @@ CMAKE_CXX_STANDARD_LIBRARIES:STRING=kernel32.lib user32.lib gdi32.lib winspool.l
 //No help, variable specified on the command line.
 CMAKE_C_COMPILER:STRING=cl.exe
 
+//Flags used by the C compiler during all build types.
+CMAKE_C_FLAGS:STRING=/DWIN32 /D_WINDOWS /W3
+
+//Flags used by the C compiler during DEBUG builds.
+CMAKE_C_FLAGS_DEBUG:STRING=/MDd /Zi /Ob0 /Od /RTC1
+
+//Flags used by the C compiler during MINSIZEREL builds.
+CMAKE_C_FLAGS_MINSIZEREL:STRING=/MD /O1 /Ob1 /DNDEBUG
+
+//Flags used by the C compiler during RELEASE builds.
+CMAKE_C_FLAGS_RELEASE:STRING=/MD /O2 /Ob2 /DNDEBUG
+
+//Flags used by the C compiler during RELWITHDEBINFO builds.
+CMAKE_C_FLAGS_RELWITHDEBINFO:STRING=/MD /Zi /O2 /Ob1 /DNDEBUG
+
+//Libraries linked by default with all C applications.
+CMAKE_C_STANDARD_LIBRARIES:STRING=kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
+
 //Flags used by the linker during all build types.
 CMAKE_EXE_LINKER_FLAGS:STRING=/machine:x64
 
@@ -185,6 +203,12 @@ SQLight_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 SQLight_SOURCE_DIR:STATIC=C:/Users/ethan/Desktop/SQLight
+
+//Path to a file.
+SQLite3_INCLUDE_DIR:PATH=SQLite3_INCLUDE_DIR-NOTFOUND
+
+//Path to a library.
+SQLite3_LIBRARY:FILEPATH=SQLite3_LIBRARY-NOTFOUND
 
 //Cleared.
 WX_adv:FILEPATH=C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxmsw33u_adv.lib
@@ -395,6 +419,20 @@ CMAKE_CXX_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_CXX_STANDARD_LIBRARIES
 CMAKE_CXX_STANDARD_LIBRARIES-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_COMPILER
+CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_FLAGS
+CMAKE_C_FLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_FLAGS_DEBUG
+CMAKE_C_FLAGS_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_FLAGS_MINSIZEREL
+CMAKE_C_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_FLAGS_RELEASE
+CMAKE_C_FLAGS_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_FLAGS_RELWITHDEBINFO
+CMAKE_C_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_STANDARD_LIBRARIES
+CMAKE_C_STANDARD_LIBRARIES-ADVANCED:INTERNAL=1
 //Executable file format
 CMAKE_EXECUTABLE_FORMAT:INTERNAL=Unknown
 //ADVANCED property for variable: CMAKE_EXE_LINKER_FLAGS
@@ -485,6 +523,10 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding wxWidgets
 FIND_PACKAGE_MESSAGE_DETAILS_wxWidgets:INTERNAL=[C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxmsw33u_core.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxbase33u.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxmsw33u_stc.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxmsw33u_aui.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxscintilla.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxlexilla.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxpng.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxtiff.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxjpeg.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxzlib.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxregexu.lib;C:/wxWidgets-3.3.0/lib/vc_x64_lib/wxexpat.lib;imm32;winmm;comctl32;uuid;oleacc;uxtheme;rpcrt4;shlwapi;version;wsock32][C:/wxWidgets-3.3.0/lib/vc_x64_lib/mswu;C:/wxWidgets-3.3.0/include][cfound components: core base stc aui scintilla lexilla png tiff jpeg zlib regex expat ][v3.3.0()]
+//ADVANCED property for variable: SQLite3_INCLUDE_DIR
+SQLite3_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: SQLite3_LIBRARY
+SQLite3_LIBRARY-ADVANCED:INTERNAL=1
 //wxWidgets_LIB_DIR
 WX_LIB_DIR:INTERNAL=C:/wxWidgets-3.3.0/lib/vc_x64_lib
 //wxWidgets_ROOT_DIR
