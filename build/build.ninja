@@ -49,6 +49,15 @@ cmake_ninja_workdir = C$:\Users\ethan\Desktop\SQLight\build\
 
 build cmake_object_order_depends_target_SQLight: phony || .
 
+build CMakeFiles\SQLight.dir\src\backend\data_store.cxx.obj: CXX_COMPILER__SQLight_unscanned_Release C$:\Users\ethan\Desktop\SQLight\src\backend\data_store.cxx || cmake_object_order_depends_target_SQLight
+  DEFINES = -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_UNICODE
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
+  INCLUDES = -IC:\Users\ethan\Desktop\SQLight\include -IC:\wxWidgets-3.3.0\lib\vc_x64_lib\mswu -IC:\wxWidgets-3.3.0\include
+  OBJECT_DIR = CMakeFiles\SQLight.dir
+  OBJECT_FILE_DIR = CMakeFiles\SQLight.dir\src\backend
+  TARGET_COMPILE_PDB = CMakeFiles\SQLight.dir\
+  TARGET_PDB = SQLight.pdb
+
 build CMakeFiles\SQLight.dir\src\frontend\app.cxx.obj: CXX_COMPILER__SQLight_unscanned_Release C$:\Users\ethan\Desktop\SQLight\src\frontend\app.cxx || cmake_object_order_depends_target_SQLight
   DEFINES = -DUNICODE -D_CRT_SECURE_NO_WARNINGS -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++20
@@ -93,7 +102,7 @@ build CMakeFiles\SQLight.dir\src\frontend\ui_setup.cxx.obj: CXX_COMPILER__SQLigh
 #############################################
 # Link the executable SQLight.exe
 
-build SQLight.exe: CXX_EXECUTABLE_LINKER__SQLight_Release CMakeFiles\SQLight.dir\src\frontend\app.cxx.obj CMakeFiles\SQLight.dir\src\frontend\events.cxx.obj CMakeFiles\SQLight.dir\src\frontend\main_frame.cxx.obj CMakeFiles\SQLight.dir\src\frontend\ui_setup.cxx.obj | C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxmsw33u_core.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxbase33u.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxmsw33u_stc.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxmsw33u_aui.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxscintilla.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxlexilla.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxpng.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxtiff.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxjpeg.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxzlib.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxregexu.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxexpat.lib
+build SQLight.exe: CXX_EXECUTABLE_LINKER__SQLight_Release CMakeFiles\SQLight.dir\src\backend\data_store.cxx.obj CMakeFiles\SQLight.dir\src\frontend\app.cxx.obj CMakeFiles\SQLight.dir\src\frontend\events.cxx.obj CMakeFiles\SQLight.dir\src\frontend\main_frame.cxx.obj CMakeFiles\SQLight.dir\src\frontend\ui_setup.cxx.obj | C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxmsw33u_core.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxbase33u.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxmsw33u_stc.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxmsw33u_aui.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxscintilla.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxlexilla.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxpng.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxtiff.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxjpeg.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxzlib.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxregexu.lib C$:\wxWidgets-3.3.0\lib\vc_x64_lib\wxexpat.lib
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG
   LINK_FLAGS = /machine:x64 /INCREMENTAL:NO /subsystem:windows
   LINK_LIBRARIES = C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxmsw33u_core.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxbase33u.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxmsw33u_stc.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxmsw33u_aui.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxscintilla.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxlexilla.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxpng.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxtiff.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxjpeg.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxzlib.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxregexu.lib  C:\wxWidgets-3.3.0\lib\vc_x64_lib\wxexpat.lib  imm32.lib  winmm.lib  comctl32.lib  uuid.lib  oleacc.lib  uxtheme.lib  rpcrt4.lib  shlwapi.lib  version.lib  wsock32.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib

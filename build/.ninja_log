@@ -1,21 +1,8 @@
 # ninja log v6
 6	16	7659345446096319	clean	8c45b54705a541e8
-26	2669	7662227757957928	CMakeFiles/SQLight.dir/src/frontend/app.cxx.obj	ca9fefb716e7d4a5
-23	2503	7662251165672917	CMakeFiles/SQLight.dir/src/frontend/main_frame.cxx.obj	6d7412cfcb6b1172
-2755	3395	7662263530916310	SQLight.exe	289e8fe957434d56
-30	2705	7662227757998334	CMakeFiles/SQLight.dir/src/frontend/events.cxx.obj	e00f13d8598d55d3
-25	2754	7662263503623248	CMakeFiles/SQLight.dir/src/frontend/ui_setup.cxx.obj	5bff0b8866c30205
-18	2714	7662264135302099	CMakeFiles/SQLight.dir/src/frontend/ui_setup.cxx.obj	5bff0b8866c30205
-2714	3324	7662264162257422	SQLight.exe	289e8fe957434d56
-25	2803	7662264236756210	CMakeFiles/SQLight.dir/src/frontend/ui_setup.cxx.obj	5bff0b8866c30205
-2803	3423	7662264264542676	SQLight.exe	289e8fe957434d56
-25	2760	7662264461473783	CMakeFiles/SQLight.dir/src/frontend/ui_setup.cxx.obj	5bff0b8866c30205
-2760	3413	7662264488830268	SQLight.exe	289e8fe957434d56
-24	2760	7662264550626620	CMakeFiles/SQLight.dir/src/frontend/ui_setup.cxx.obj	5bff0b8866c30205
-2761	3385	7662264577995452	SQLight.exe	289e8fe957434d56
-25	2799	7662264715485590	CMakeFiles/SQLight.dir/src/frontend/ui_setup.cxx.obj	5bff0b8866c30205
-2799	3460	7662264743232932	SQLight.exe	289e8fe957434d56
-26	2762	7662264824267891	CMakeFiles/SQLight.dir/src/frontend/ui_setup.cxx.obj	5bff0b8866c30205
-2763	3410	7662264851639176	SQLight.exe	289e8fe957434d56
-10	2764	7662265050962886	CMakeFiles/SQLight.dir/src/frontend/ui_setup.cxx.obj	5bff0b8866c30205
-2765	3399	7662265078499193	SQLight.exe	289e8fe957434d56
+21	2853	7663019972452141	CMakeFiles/SQLight.dir/src/frontend/app.cxx.obj	ca9fefb716e7d4a5
+29	2927	7663019972539041	CMakeFiles/SQLight.dir/src/frontend/main_frame.cxx.obj	6d7412cfcb6b1172
+3304	3962	7663020005282898	SQLight.exe	289e8fe957434d56
+25	2887	7663019972502145	CMakeFiles/SQLight.dir/src/frontend/events.cxx.obj	e00f13d8598d55d3
+33	3303	7663019972569048	CMakeFiles/SQLight.dir/src/frontend/ui_setup.cxx.obj	5bff0b8866c30205
+31	2910	7663042019688469	CMakeFiles/SQLight.dir/src/frontend/ui_setup.cxx.obj	5bff0b8866c30205
