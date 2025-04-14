@@ -1,5 +1,8 @@
 #pragma once
 
+// Backend
+#include "backend/data_store.hxx"
+
 // WX Components
 #include <wx/wx.h> // wx Core
 #include <wx/frame.h> // wxFrame
@@ -7,6 +10,8 @@
 #include <wx/dataview.h> // wxDataViewTreeCtrl
 #include <wx/aui/aui.h>
 #include <wx/grid.h>
+#include <wx/splitter.h>
+#include <wx/aui/auibook.h>
 
 /**
  * @class MainFrame
@@ -30,11 +35,22 @@ private:
 
     // Setup functions which setup core ui.
     void SetupMenuBar();
-    void SetupTextEditor(wxWindow* parent);
+    void SetupWindowLeftPanel();
+    void SetupWindowRightPanel();
+    
+    // Windows that will be put into the AUI view.
+    void SetupTextEditor(wxAuiNotebook* parent);
     void SetupStructureView(wxAuiNotebook* aui);
     void SetupCommandOutput(wxAuiNotebook* aui);
-    wxDataViewTreeCtrl* SetupTableTreeView(wxPanel* parent);
+    
+    wxDataViewTreeCtrl* SetupTableTreeView(wxPanel* parent); // Table view on the left panel
 
+    // UI Components
     wxStyledTextCtrl* m_textEditor; // styledTextCtrl IDE-like text editor
     wxGrid* m_tableDataView;
+    wxPanel* m_windowLeftPanel;
+    wxPanel* m_windowRightPanel;
+    wxSplitterWindow* m_windowSplitterPanel;
+
+    DataStore m_backend; // Backend data base
 };

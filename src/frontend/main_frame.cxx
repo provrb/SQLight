@@ -4,7 +4,6 @@
 // WX
 #include <wx/splitter.h>
 #include <wx/listctrl.h>
-#include <wx/aui/auibook.h>
 
 /**
  * @brief Constructs the main application window and initializes all UI components.
@@ -33,45 +32,17 @@ MainFrame::MainFrame(std::string_view title)
     SetTitle("SQLight - No file open");
 
     // Splitter between left and right
-    wxSplitterWindow* splitter = new wxSplitterWindow(this, wxID_ANY);
-    splitter->SetMinimumPaneSize(200);
-
-    // Left panel
-    wxPanel* leftPanel = new wxPanel(splitter, wxID_ANY);
-    wxBoxSizer* leftSizer = new wxBoxSizer(wxVERTICAL);
-
-    wxDataViewTreeCtrl* treeCtrl = SetupTableTreeView(leftPanel);
-    
-    leftSizer->Add(treeCtrl, 1, wxEXPAND | wxLEFT | wxTOP | wxBOTTOM, 8);
-    leftPanel->SetSizer(leftSizer);
-
-    // Right panel
-    wxPanel* rightPanel = new wxPanel(splitter, wxID_ANY);
-    wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
-
-    wxAuiNotebook* aui = new wxAuiNotebook(
-        rightPanel, 
-        wxID_ANY, 
-        wxDefaultPosition, wxDefaultSize, 
-        wxAUI_NB_DEFAULT_STYLE | wxAUI_NB_CLOSE_ON_ACTIVE_TAB | wxNO_BORDER
-    );
-
-    SetupTextEditor(aui);
-    aui->AddPage(m_textEditor, "*SQL1");
-    SetupStructureView(aui);
-    SetupCommandOutput(aui);
-    AppendTableColumn("hello");
-    
-    aui->SetControlMargin(0);
-
-    rightSizer->Add(aui, 1, wxEXPAND | wxTOP | wxLEFT | wxBOTTOM, 7);
-    rightPanel->SetSizer(rightSizer);
-
-    splitter->SplitVertically(leftPanel, rightPanel);
-    splitter->SetSashGravity(0);
-    splitter->SetSashPosition(splitter->GetMinimumPaneSize());
+    m_windowSplitterPanel = new wxSplitterWindow(this, wxID_ANY);
+    m_windowSplitterPanel->SetMinimumPaneSize(200);
 
     SetupMenuBar();
+    SetupWindowLeftPanel();
+    SetupWindowRightPanel();
+
+    // Main splitter window
+    m_windowSplitterPanel->SplitVertically(m_windowLeftPanel, m_windowRightPanel);
+    m_windowSplitterPanel->SetSashGravity(0);
+    m_windowSplitterPanel->SetSashPosition(m_windowSplitterPanel->GetMinimumPaneSize());
 }
 
 /**

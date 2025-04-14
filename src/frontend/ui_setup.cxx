@@ -4,9 +4,63 @@
 #include "frontend/file_paths.hxx"
 
 // WX Components
-#include <wx/splitter.h> // wxSplitterWindow 
-#include <wx/listctrl.h> // wxListCtrl
-#include <wx/aui/auibook.h> // wxAuiNotebook
+#include <wx/listctrl.h>
+
+/**
+ * @brief Sets up the left panel of the main window.
+ *
+ * This function creates and initializes the left-side panel within the main window splitter.
+ * It includes a vertical box sizer and a wxDataViewTreeCtrl for displaying a tree view
+ * off all SQLite triggers, tables, views and indices.
+ * 
+ * @see MainFrame::SetupTableTreeView(wxPanel*)
+ */
+void MainFrame::SetupWindowLeftPanel() {
+    // Create left panel belonging to the splitter window
+    m_windowLeftPanel = new wxPanel(m_windowSplitterPanel, wxID_ANY);
+    wxBoxSizer* leftSizer = new wxBoxSizer(wxVERTICAL);
+
+    // Create the table tree view
+    wxDataViewTreeCtrl* treeCtrl = SetupTableTreeView(m_windowLeftPanel);
+    
+    // Create a sizer for the left window and add it to the left panel
+    leftSizer->Add(treeCtrl, 1, wxEXPAND | wxLEFT | wxTOP | wxBOTTOM, 8);
+    m_windowLeftPanel->SetSizer(leftSizer);
+}
+
+/**
+ * @brief Sets up the right panel of the main window.
+ *
+ * This function creates and initializes the right-side panel within the main window splitter.
+ * It includes an AUI notebook with multiple tabs such as a text editor, a structure view,
+ * and a command output window.
+ * 
+ * @see MainFrame::SetupTextEditor(wxAuiNotebook*)
+ * @see MainFrame::SetupStructureOutput(wxAuiNotebook*)
+ * @see MainFrame::SetupCommandOutput(wxAuiNotebook*)
+ */
+void MainFrame::SetupWindowRightPanel() {
+    // Create right panel and add it to the main splitter
+    m_windowRightPanel= new wxPanel(m_windowSplitterPanel, wxID_ANY);
+    wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
+
+    // CReate aui notebook
+    wxAuiNotebook* aui = new wxAuiNotebook(
+        m_windowRightPanel, 
+        wxID_ANY, 
+        wxDefaultPosition, wxDefaultSize, 
+        wxAUI_NB_DEFAULT_STYLE | wxAUI_NB_CLOSE_ON_ACTIVE_TAB | wxNO_BORDER
+    );
+
+    // Setup all panels that will be tabs in the aui
+    SetupTextEditor(aui);
+    SetupStructureView(aui);
+    SetupCommandOutput(aui);
+
+    // Add a sizer for the right panel
+    rightSizer->Add(aui, 1, wxEXPAND | wxALL, 7);
+    m_windowRightPanel->SetSizer(rightSizer);
+}
 
 /**
  * @brief Initializes and configures the main text editor used for SQL editing.
@@ -21,7 +75,7 @@
  *
  * @param parent The parent window that hosts the text editor.
  */
-void MainFrame::SetupTextEditor(wxWindow* parent) {
+void MainFrame::SetupTextEditor(wxAuiNotebook* parent) {
     // Create text editor
     m_textEditor = new wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxNO_BORDER);
     m_textEditor->SetMarginType(0, wxSTC_MARGIN_NUMBER);
@@ -88,6 +142,8 @@ void MainFrame::SetupTextEditor(wxWindow* parent) {
 
         m_textEditor->SetMarginWidth(0, marginWidth);
     });
+
+    parent->AddPage(m_textEditor, "*SQL1");
 }
 
 /**
@@ -245,6 +301,7 @@ void MainFrame::SetupStructureView(wxAuiNotebook* aui) {
 
     bRefreshRecords->SetBackgroundColour(*wxWHITE);
     bRefreshRecords->SetToolTip("Refresh records displayed");
+    wxLogMessage("Created structure view");
 
     // Button to create a new record
     wxBitmap bmNew(ASSET_DIR + "new-record.png", wxBITMAP_TYPE_PNG);
@@ -345,7 +402,7 @@ void MainFrame::SetupCommandOutput(wxAuiNotebook* aui) {
 }
 
 /**
- * @brief Creates and populates the application’s menu bar with standard entries.
+ * @brief Creates and populates the applicationï¿½s menu bar with standard entries.
  *
  * Sets up menus for:
  * - File operations (New, Open, Save, Exit)
