@@ -273,7 +273,8 @@ void MainFrame::SetupStructureView(wxAuiNotebook* aui) {
 
     bDeleteRecord->SetBackgroundColour(*wxWHITE);
     bDeleteRecord->SetToolTip("Delete selected record");
-
+    
+    // Toolbar. Add select label, dropdown, and buttons
     wxBoxSizer* toolbarSizer = new wxBoxSizer(wxHORIZONTAL);
     toolbarSizer->Add(selectLabel, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxLEFT, 5);
     toolbarSizer->Add(dropdown, 0, wxTOP, 5);

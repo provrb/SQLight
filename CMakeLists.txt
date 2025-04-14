@@ -17,6 +17,8 @@ include_directories(include)
 
 # Collect source files
 file(GLOB_RECURSE SRC_FILES 
+    "ext/*.c"
+    "ext/*.h"
     "src/frontend/*.cxx"
     "src/backend/*.cxx"
     "include/frontend/*.hxx"
